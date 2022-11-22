@@ -16,6 +16,7 @@ headers = {
 response = requests.get(url, headers = headers)
 soup = BeautifulSoup(response.content, 'html.parser')
 driver.get(url)
+
 productstitle = []
 productsprice = []
 productdicount = []
@@ -53,24 +54,24 @@ def getData():
             item_infogame = soup.find('div', {'class': 'specifics'})
 
             productstitle.append(item_infoprice.find('h1').text)
-            if type(item_infoprice.find('div', {'class': 'total'}) == "NoneType"):
+            if type(item_infoprice.find('div', {'class': 'total'})) == "NoneType":
                 productsprice.append(None)
             else:
                 productsprice.append(item_infoprice.find('div', {'class': 'total'}).text)
 
-            if type(item_infoprice.find('div', {'class': 'retail'}) == "NoneType"):
+            if type(item_infoprice.find('div', {'class': 'retail'})) == "NoneType":
                 productdicountprice.append(None)
                 productdicount.append(None)
             else:
                 productdicountprice.append(item_infoprice.find('div', {'class': 'retail'}).text.replace("\n", ""))
                 productdicount.append(item_infoprice.find('div', {'class': 'discounted'}).text)
 
-            if type(item_infogame.find('div', {'class': 'table-cell release-date'}) == "NoneType"):
+            if type(item_infogame.find('div', {'class': 'table-cell release-date'}) )== "NoneType":
                 productsreleasedate.append(None)
             else:
                 productsreleasedate.append(item_infogame.find('div', {'class': 'table-cell release-date'}).text.replace("\n", ""))
 
-            if type(item_infogame.find('a', {'class': 'limiter'}) == 'NoneType'):
+            if type(item_infogame.find('a', {'class': 'limiter'})) == 'NoneType':
                 productsdevelop.append(None)
             else:
                 productsdevelop.append(item_infogame.find('a', {'class': 'limiter'}).text.replace("\n", ""))
@@ -91,7 +92,7 @@ def main():
     pages = soup.findAll('li')
     pages = pages[3].text
 
-    for i in range(int(pages)-120):
+    for i in range(int(pages)-130):
         getData()
         getPage(i+1)
         content = driver.page_source
