@@ -28,7 +28,8 @@ productdate = []
 
 # Mètode per avançar a la pàgina següent
 def getPage(page):
-    url_page = 'https://www.instant-gaming.com/es/busquedas/?page='+str(page)
+
+    url_page = 'https://www.instant-gaming.com/es/busquedas/?platform%5B0%5D=1&type%5B0%5D=&sort_by=&min_reviewsavg=10&max_reviewsavg=100&noreviews=1&min_price=0&max_price=100&noprice=1&gametype=all&query=&page='+str(page)
     driver.get(url_page)
     ul = driver.find_element(By.CSS_SELECTOR,"a[class='arrow']")
     driver.implicitly_wait(3)
@@ -66,7 +67,7 @@ def getData():
                 productdicountprice.append(item_infoprice.find('div', {'class': 'retail'}).text.replace("\n", ""))
                 productdicount.append(item_infoprice.find('div', {'class': 'discounted'}).text)
 
-            if type(item_infogame.find('div', {'class': 'table-cell release-date'}) )== "NoneType":
+            """if type(item_infogame.find('div', {'class': 'table-cell release-date'}))== "NoneType":
                 productsreleasedate.append(None)
             else:
                 productsreleasedate.append(item_infogame.find('div', {'class': 'table-cell release-date'}).text.replace("\n", ""))
@@ -75,6 +76,7 @@ def getData():
                 productsdevelop.append(None)
             else:
                 productsdevelop.append(item_infogame.find('a', {'class': 'limiter'}).text.replace("\n", ""))
+                """
             productdate.append(datetime.datetime.now())
         except:
             print(item_infogame.find('a', {'class': 'limiter'}).text)
@@ -92,7 +94,7 @@ def main():
     pages = soup.findAll('li')
     pages = pages[3].text
 
-    for i in range(int(pages)-130):
+    for i in range(int(pages)-140):
         getData()
         getPage(i+1)
         content = driver.page_source
@@ -100,7 +102,7 @@ def main():
         print(i)
 
 
-    dict = {'title': productstitle, 'not discounted price':productdicountprice, 'discount': productdicount, 'price':productsprice, 'developer':productsdevelop ,'release date':productsreleasedate, 'extraction date': productdate}
+    dict = {'title': productstitle, 'not discounted price':productdicountprice, 'discount': productdicount, 'price':productsprice, 'extraction date': productdate}
     df = pd.DataFrame(dict)
     df.to_csv("products.csv",  header=True, index = False, sep=',',encoding='utf-8-sig')
 
