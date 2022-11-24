@@ -29,7 +29,7 @@ productdate = []
 # Mètode per avançar a la pàgina següent
 def getPage(page):
 
-    url_page = 'https://www.instant-gaming.com/es/busquedas/?platform%5B0%5D=1&type%5B0%5D=&sort_by=discount_desc&min_reviewsavg=10&max_reviewsavg=100&noreviews=1&min_price=0&max_price=100&noprice=0&instock=1&gametype=all&query=&page='+str(page)
+    url_page = 'https://www.instant-gaming.com/es/busquedas/?page='+str(page)
     driver.get(url_page)
     ul = driver.find_element(By.CSS_SELECTOR,"a[class='arrow']")
     driver.implicitly_wait(3)
@@ -54,20 +54,37 @@ def getData():
             item_infoprice = soup.find('div', {'class': 'main-content'})
             item_infogame = soup.find('div', {'class': 'specifics'})
 
-            productstitle.append(item_infoprice.find('h1').text)
-            productsprice.append(item_infoprice.find('div', {'class': 'total'}).text)
-            productdicountprice.append(item_infoprice.find('div', {'class': 'retail'}).text.replace("\n", ""))
-            productdicount.append(item_infoprice.find('div', {'class': 'discounted'}).text)
+            if(item_infoprice.find('h1')) is not None:
+                productstitle.append(item_infoprice.find('h1').text)
+            else:
+                productstitle.append(None)
 
-            """if type(item_infogame.find('div', {'class': 'table-cell release-date'}))== "NoneType":
+            if (item_infoprice.find('div', {'class': 'total'})) is not None:
+                productsprice.append(item_infoprice.find('div', {'class': 'total'}).text)
+            else:
+                productsprice.append(None)
+
+            if(item_infoprice.find('div', {'class': 'retail'})) is not None:
+                productdicountprice.append(item_infoprice.find('div', {'class': 'retail'}).text.replace("\n", ""))
+            else:
+                productdicountprice.append(None)
+
+            if(item_infoprice.find('div', {'class': 'discounted'})) is not None:
+                productdicount.append(item_infoprice.find('div', {'class': 'discounted'}).text)
+            else:
+                productdicount.append(None)
+
+            if (item_infogame.find('div', {'class': 'table-cell release-date'})) is not None:
+                productsreleasedate.append(item_infogame.find('div', {'class': 'table-cell release-date'}).text.replace("\n", ""))
+            else:
                 productsreleasedate.append(None)
-            else:
-                productsreleasedate.append(item_infogame.find('div', {'class': 'table-cell release-date'}).text.replace("\n", ""))"""
 
-            if type(item_infogame.find('a', {'class': 'limiter'})) == 'NoneType':
-                productsdevelop.append(None)
-            else:
+
+            if (item_infogame.find('a', {'class': 'limiter'})) is not None:
                 productsdevelop.append(item_infogame.find('a', {'class': 'limiter'}).text.replace("\n", ""))
+
+            else:
+                productsdevelop.append(None)
             productdate.append(datetime.datetime.now())
         except:
             print(item_infogame.find('a', {'class': 'limiter'}).text)
@@ -85,7 +102,7 @@ def main():
     pages = soup.findAll('li')
     pages = pages[3].text
 
-    for i in range(int(pages)-173):
+    for i in range(int(pages)-100):
         getData()
         getPage(i+1)
         content = driver.page_source
@@ -93,7 +110,7 @@ def main():
         print(i)
 
 
-    dict = {'title': productstitle, 'not discounted price':productdicountprice, 'discount': productdicount, 'price':productsprice, 'developer':productsdevelop , 'extraction date': productdate}
+    dict = {'title': productstitle, 'not discounted price':productdicountprice, 'discount': productdicount, 'price':productsprice, 'developer':productsdevelop , 'release date':productsreleasedate, 'extraction date': productdate}
     df = pd.DataFrame(dict)
     df.to_csv("products.csv",  header=True, index = False, sep=',',encoding='utf-8-sig')
 
